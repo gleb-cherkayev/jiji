@@ -1,0 +1,15 @@
+/*
+!.gitignore
+!*.*
+!/.github/
+!/cmake/
+!/demo-template/
+!/doc/
+!/jiji/
+
+.obj*
+.bin*
+.build*
+
+.vs
+*.user
