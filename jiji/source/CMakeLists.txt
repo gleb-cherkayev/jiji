@@ -12,8 +12,9 @@ jiji_configure_library(jiji-lib)
 # Compilation settings
 include_directories(.)
 
-add_compile_definitions(/FI"jiji/_common.hpp")  # global force-include
-target_precompile_headers(jiji-lib PRIVATE jiji/_precompiled.hpp)
+# Cannot use with modules.
+#add_compile_definitions(/FI"jiji/_prelude.hxx")  # global force-include
+#target_precompile_headers(jiji-lib PRIVATE jiji/_precompiled.hpp)
 
 add_definitions(-D"JIJI_BUILD_LIBRARY")  # To tell the lib that it is building itself
 
