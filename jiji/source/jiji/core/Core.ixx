@@ -1,5 +1,6 @@
 export module jiji:core.Core;
 import <jiji/_prelude.hxx>;
+import :core.EngineCore;
 
 
 export namespace jiji::core {
@@ -11,7 +12,9 @@ export namespace jiji::core {
 class Core {
 public:
 	static unique_ptr<Core> Create() {
-		return unique_ptr<Core>(new Core);
+		auto instance = unique_ptr<Core>(new Core);
+		if (!instance->_init()) return nullptr;
+		return instance;
 	}
 
 // RUN
@@ -24,7 +27,17 @@ public:
 private:
 	Core() = default;
 
+	// Performs actual initialisation.
+	// Returns true if successful and the instance is useable, or false otherwise.
+	bool _init() {
+		engine_ = EngineCore::Create();
+		if (!engine_) return false;
+
+		return true;
+	}
+
 private:
+	unique_ptr<EngineCore> engine_;
 };
 
 }  // jiji::core
