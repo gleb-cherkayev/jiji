@@ -10,7 +10,7 @@ jiji_configure_library(jiji-lib)
 
 
 # Compilation settings
-include_directories(.)
+include_directories(.)  # NOTE: MSVC (as of 16.11.5) does not like `.` or `..` when looking up header units in Release
 
 # Cannot use with modules.
 #add_compile_definitions(/FI"jiji/_prelude.hxx")  # global force-include
