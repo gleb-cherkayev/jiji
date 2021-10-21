@@ -9,7 +9,7 @@ export namespace jiji::core {
 	Main application class.
 	Use `jiji::core::Create()` to create and obtain the instance, which should be held until the end of execution.
 */
-class Core {
+class Core : noncopyable {
 public:
 	static unique_ptr<Core> Create() {
 		auto instance = unique_ptr<Core>(new Core);

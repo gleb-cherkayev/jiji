@@ -9,7 +9,7 @@ namespace jiji::core {
 	Initialises and holds low-level subsystems.
 	In turn, is owned by `Core`.
 */
-class EngineCore {
+class EngineCore : noncopyable {
 public:
 	static unique_ptr<EngineCore> Create() {
 		auto instance = unique_ptr<EngineCore>(new EngineCore);
