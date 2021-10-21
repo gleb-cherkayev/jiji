@@ -3,17 +3,17 @@ import :prelude;
 import :core.EngineCore;
 
 
-export namespace jiji::core {
+namespace jiji::core {
 
 /*
 	Main application class.
 	Use `jiji::core::Create()` to create and obtain the instance, which should be held until the end of execution.
 */
-class Core : noncopyable {
+export class Core : noncopyable {
 public:
-	static unique_ptr<Core> Create() {
+	static unique_ptr<Core> Create(Config const& config) {
 		auto instance = unique_ptr<Core>(new Core);
-		if (!instance->_init()) return nullptr;
+		if (!instance->_init(config)) return nullptr;
 		return instance;
 	}
 
@@ -29,8 +29,8 @@ private:
 
 	// Performs actual initialisation.
 	// Returns true if successful and the instance is useable, or false otherwise.
-	bool _init() {
-		engine_ = EngineCore::Create();
+	bool _init(Config const& config) {
+		engine_ = EngineCore::Create(config);
 		if (!engine_) return false;
 
 		return true;
