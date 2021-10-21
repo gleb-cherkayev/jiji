@@ -1,5 +1,6 @@
 export module jiji:core.EngineCore;
 import :prelude;
+import :core.logging.Logger;
 
 
 namespace jiji::core {
@@ -11,13 +12,23 @@ namespace jiji::core {
 class EngineCore {
 public:
 	static unique_ptr<EngineCore> Create() {
-		return unique_ptr<EngineCore>(new EngineCore);
+		auto instance = unique_ptr<EngineCore>(new EngineCore);
+		if (!instance->_init()) return nullptr;
+		return instance;
 	}
 
 private:
 	EngineCore() = default;
 
+	bool _init() {
+		logger_ = logging::Logger::Create();
+		if (!logger_) return false;
+
+		return true;
+	}
+
 private:
+	unique_ptr<logging::Logger> logger_;
 };
 
 }  // jiji::core
