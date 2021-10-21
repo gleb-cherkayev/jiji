@@ -1,5 +1,5 @@
 export module jiji:core.Core;
-import <jiji/_prelude.hxx>;
+import :prelude;
 import :core.EngineCore;
 
 

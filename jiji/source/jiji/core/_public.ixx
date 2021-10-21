@@ -1,5 +1,5 @@
 export module jiji:core.pub;
-import <jiji/_prelude.hxx>;
+import :prelude;
 import :core.Core;
 
 
