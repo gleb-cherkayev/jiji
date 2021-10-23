@@ -2,6 +2,9 @@
 
 #include <cassert>
 
+#include <type_traits>
+#include <utility>
+
 #include <memory>
 using std::unique_ptr;
 using std::shared_ptr;
@@ -13,7 +16,10 @@ using std::string;
 using std::string_view;
 
 #include <vector>
+#include <unordered_map>
+#include <unordered_set>
 
+#include <format>
 
 using uint = unsigned int;
 

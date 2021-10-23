@@ -1,3 +1,3 @@
 export module jiji:prelude;
-export import <jiji/_prelude.hxx>;
-export import :base;
+export import :prelude.no_logging;
+export import :core.logging.logging;

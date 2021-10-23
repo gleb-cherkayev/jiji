@@ -1,5 +1,5 @@
 export module jiji:core.logging.Message;
-import :prelude;
+import :prelude.no_logging;
 
 
 namespace jiji::core::logging {
