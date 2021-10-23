@@ -1,7 +1,6 @@
 export module jiji:core.logging.LogHandle;
 import :prelude;
 import :core.logging.LogTarget;
-import :core.logging.Logger;
 
 
 namespace jiji::core::logging {
@@ -27,11 +26,7 @@ public:
 
 // CLOSE
 	// Closes the log target immediately, if it is still alive.
-	void Close() {
-		if (auto target = target_.lock())
-			theLogger().Close(target);
-		target_.reset();
-	}
+	void Close();
 
 // OPTIONS
 	// Message filtering. Everything is enabled by default.

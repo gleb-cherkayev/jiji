@@ -29,6 +29,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/.bin" CACHE PATH "")
 add_definitions(-D"UNICODE" -D"_CRT_SECURE_NO_WARNINGS")
 add_definitions(/std:c++latest /permissive- /MP /W4 /WX)
 # /W4 is a bit over the top:
+add_definitions(/wd4005)  # macro redefinition
 add_definitions(/wd4063)  # not a valid value for switch of enum
 add_definitions(/wd4100)  # unreferenced formal parameter
 add_definitions(/wd4189)  # local variable is initialized but not referenced (range-for loops)
@@ -38,6 +39,8 @@ add_definitions(/wd4456)  # declaration of '...' hides previous local declaratio
 add_definitions(/wd4457)  # declaration of '...' hides function parameter
 add_definitions(/wd4458)  # declaration of '...' hides class member
 add_definitions(/wd4459)  # declaration of '...' hides global declaration
+add_definitions(/wd5105)  # macro expansion producing 'defined' has undefined behavior
+add_definitions(/wd5106)  # macro redefined with different parameter names
 
 
 # THIRD-PARTY

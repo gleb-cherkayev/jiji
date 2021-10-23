@@ -1,5 +1,6 @@
 export module jiji:core.logging.LogTarget;
 import :prelude;
+import :core.logging.sinks.LogSink;
 
 
 namespace jiji::core::logging {
@@ -10,22 +11,24 @@ namespace jiji::core::logging {
 class LogTarget : noncopyable {
 public:
 	// Managed with shared_ptr, to allow weak-referencing by LogHandle.
-	static shared_ptr<LogTarget> Open(/*unique_ptr<LogSink>*/) {
-//		if (!sink) return nullptr;
+	static shared_ptr<LogTarget> Open(unique_ptr<LogSink> sink) {
+		if (!sink) return nullptr;
 
 		auto instance = shared_ptr<LogTarget>(new LogTarget);
-//		instance->sink_ = std::move(sink);
+		instance->sink_ = std::move(sink);
 		instance->filter_ = Filter::Create();
 		return instance;
 	}
 
 	// Provides identification for the log.
 	string_view target_name() const {
-//		return sink_->name();
-		return "";
+		return sink_->name();
 	}
 
 // WRITE
+	void WriteLine(string_view message) {
+		sink_->Write(message);
+	}
 	// Write full message to log.
 //	void WriteLine(Message const&);
 	// Write a message to log, but don't end the line
@@ -34,11 +37,11 @@ public:
 //	void WriteSuffix(string_view, MessageLevel);
 
 private:
-	LogTarget();
+	LogTarget() = default;
 
 private:
 	// Actual message destination.
-//	unique_ptr<LogSink> sink_;
+	unique_ptr<LogSink> sink_;
 	// Filter to determine if the message should be passed.
 	class Filter;
 	unique_ptr<Filter> filter_;
@@ -46,7 +49,9 @@ private:
 
 	class Filter {
 	public:
-		static unique_ptr<Filter> Create();
+		static unique_ptr<Filter> Create() {
+			return unique_ptr<Filter>(new Filter);
+		}
 
 //		void Enable(MessageLevel);
 //		void Disable(MessageLevel);

@@ -12,6 +12,9 @@ using std::string;
 #include <string_view>
 using std::string_view;
 
+#include <vector>
+
+
 using uint = unsigned int;
 
 #include <jiji/core/logging/logging.hxx>

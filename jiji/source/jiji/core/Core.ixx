@@ -13,13 +13,15 @@ namespace jiji::core {
 export class Core : noncopyable {
 private:	
 	Core() {
-		JIJI_COMMENT_HERE;
-		theCore_ = this;
+		JIJI_COMMENT_HERE;  // Safe, as a logger already exists.
+		assert(!instance_);
+		instance_ = this;
 	}
 
 	// Performs actual initialisation.
 	// Returns true if successful and the instance is useable, or false otherwise.
 	bool _init(Config const& config) {
+		// logger_ is already set. Targets are set-up by EngineCore.
 
 		engine_ = EngineCore::Create(config);
 		if (!engine_) return false;
@@ -30,12 +32,13 @@ private:
 public:
 	~Core() {
 		JIJI_COMMENT_HERE;
-		theCore_ = nullptr;
+		assert(instance_ == this);
+		instance_ = nullptr;
 		// And the logger dies here, the last of members.
 	}
 
 	static unique_ptr<Core> Create(Config const& config) {
-		if (theCore_) {
+		if (instance_) {
 			JIJI_ERROR("Core already created.");
 			return nullptr;
 		}
@@ -69,9 +72,13 @@ private:
 	unique_ptr<EngineCore> engine_;
 
 	// Singleton instance.
-	static Core* theCore_;
+	static Core* instance_;
+	friend Core& theCore() {
+		assert(instance_);
+		return *instance_;
+	}
 };
 
-Core* Core::theCore_ = nullptr;
+Core* Core::instance_ = nullptr;
 
 }  // jiji::core
