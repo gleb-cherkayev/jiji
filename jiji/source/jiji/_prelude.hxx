@@ -23,4 +23,5 @@ using std::string_view;
 
 using uint = unsigned int;
 
+#include <source_location>
 #include <jiji/core/logging/logging.hxx>

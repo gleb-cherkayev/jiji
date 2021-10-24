@@ -1,13 +1,12 @@
-module jiji:core.logging.logging;
-//import :prelude;
+module jiji:core.logging.routines;
+import :prelude;
 import :core.logging.Logger;
-import :core.logging.Message;
 
 
 namespace jiji::core::logging {
 
-void pass_to_logger(Message const& message) {
-	theLogger().WriteLine(message.text);
+void send_to_logger(Message const& message) {
+	theLogger().WriteLine(message);
 }
 
-}
+}  // jiji::core::logging

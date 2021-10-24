@@ -1,8 +1,29 @@
-export module jiji:core.logging.logging;
+export module jiji:core.logging.routines;
 import :prelude.no_logging;
 import :core.logging.Message;
 
-//import :core.logging.Logger;
+/*
+	The following logging functions are available (residing in `jiji` namespace):
+	- `log_error` (but prefer JIJI_LOG_ERROR instead of calling directly)
+	- `log_warning` (but prefer JIJI_LOG_WARNING instead of calling directly)
+	- `log_high`
+	- `log_bold`
+	- `log`
+	- `log_loading`
+	- `log_detail`
+	- `log_comment` (used to implement JIJI_COMMENT_HERE macro, and should not be used directly)
+	- `trace` (no-op in Ship build)
+	See `Message.ixx` for the description of logging levels.
+	All of them take as arguments formatting string (for std::format), and optionally, parameters to that string.
+
+	`log_double_separator()` outputs decorative horizontal line (of equal signs) with Bold level.
+	`log_single_separator()` does the same with dash symbols and Log level.
+
+	`trace_here()` and `comment_here()` output formatted location of call site, but macros JIJI_TRACE_HERE and
+		JIJI_COMMENT_HERE should be typically used instead of calling them directly (see `logging.hxx`).
+
+	All these logging functions return an instance of special `jiji::core::logging::log_token` class.
+*/
 
 
 namespace jiji::core::logging {
@@ -13,11 +34,11 @@ namespace jiji::core::logging {
 struct log_token {};
 
 
-void pass_to_logger(Message const&);
+// Helper internal function to hide dependency on Logger.
+void send_to_logger(Message const&);
 
-/*
-	Implementation for all logging functions.
-*/
+
+//	General implementation for all logging functions.
 template<MessageLevel level, typename... Args>
 log_token impl_log(string_view pattern, Args&&... args) {
 	Message message{
@@ -25,56 +46,67 @@ log_token impl_log(string_view pattern, Args&&... args) {
 		.level = level
 	};
 
-	pass_to_logger(message);
-
+	send_to_logger(message);
 	return {};
 }
 
-template<typename... Args>
-log_token log(string_view pattern, Args&&... args) {
-	return impl_log<MessageLevel::Log>(pattern, std::forward<Args>(args)...);
+
+// 0         1         2         3         4         5         6         7
+// 01234567890123456789012345678901234567890123456789012345678901234567890123456789
+// 20:22:59 [***] ================================================================ 
+const char* double_line = "================================================================";
+const char* single_line = "----------------------------------------------------------------";
+
+}  // jiji::core::logging
+
+
+namespace jiji {
+
+using namespace jiji::core::logging;
+
+#define JIJI_LOG_FUNCTION(log_xxx, XXX) \
+template<typename... Args> \
+log_token log_xxx(string_view pattern, Args&&... args) { \
+	return impl_log<MessageLevel::XXX>(pattern, std::forward<Args>(args)...); \
 }
 
-
-
-#if 0
-#define LILI_WRITE_LINE(source, level, format_pattern) \
-if (the_log) \
-{ \
-	va_list args; \
-	va_start(args, format_pattern); \
-	the_log->WriteLine(source, level, vformat(format_pattern, args)); \
-	va_end(args); \
-} \
-return log_token();
-
-
-
-
-// Messages.
-log_token log_error(const char*, ...) {
-	std::format	
-}
-
-log_token log_warning(const char*, ...);
-log_token log_bold(const char*, ...);
-log_token log_high(const char*, ...);
-log_token log(const char*, ...);
-log_token log_loading(const char*, ...);
-log_token log_detail(const char*, ...);
-log_token log_comment(const char*, ...);
-// NOTE: Does not produce any output if NDEBUG is in play.
-log_token trace(const char*, ...);
-
-// Separators.
-void log_double_separator() {
-	if (!the_log) return;
-	the_log->WriteLine(LILI_CURRENT_MESSAGE_SOURCE, MessageLevel::Bold, double_line);
-}
-
-void log_single_separator() {
-	if (!the_log) return;
-	the_log->WriteLine(LILI_CURRENT_MESSAGE_SOURCE, MessageLevel::Log, single_line);
+// Logging routines for different message severities.
+JIJI_LOG_FUNCTION(log_error, Error)
+JIJI_LOG_FUNCTION(log_warning, Warning)
+JIJI_LOG_FUNCTION(log_high, High)
+JIJI_LOG_FUNCTION(log_bold, Bold)
+JIJI_LOG_FUNCTION(log, Log)
+JIJI_LOG_FUNCTION(log_loading, Loading)
+JIJI_LOG_FUNCTION(log_detail, Detail)
+JIJI_LOG_FUNCTION(log_comment, Comment)
+#ifndef NDEBUG
+JIJI_LOG_FUNCTION(trace, Debug)
+#else
+log_token trace(string_view pattern, Args&&... args) {
+	return {};
 }
 #endif
+
+#undef JIJI_LOG_FUNCTION
+
+
+// Separators.
+auto log_double_separator() {
+	return log_bold(double_line);
 }
+
+auto log_single_separator() {
+	return log(single_line);
+}
+
+
+// Location markers.
+auto trace_here(std::source_location location) {
+	return trace("{}() at {}:{}", location.function_name(), location.file_name(), location.line());
+}
+
+auto comment_here(std::source_location location) {
+	return log_comment("{}() at {}:{}", location.function_name(), location.file_name(), location.line());
+}
+
+}  // jiji

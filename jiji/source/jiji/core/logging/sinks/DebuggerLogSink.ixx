@@ -22,6 +22,7 @@ public:
 //	void Write(Message const&, bool eol, LogTarget::Appearance const&) override;
 	void Write(string_view message/*, MessageLevel*/) override {
 		::OutputDebugStringA(message.data());
+		::OutputDebugStringA("\n");
 	}
 
 private:

@@ -1,6 +1,14 @@
 export module jiji:core.logging.Message;
 import :prelude.no_logging;
 
+/*
+	Class `Message` stores together a log message text and associated attributes
+		of the message, such as time (TODO not yet) or severity.
+
+	`MessageLevel` enumeration represents all severity levels in use,
+		either used directly with logging routines, or auxillary ones, such as Success.
+*/
+
 
 namespace jiji::core::logging {
 
@@ -84,4 +92,4 @@ string_view get_level_prefix(MessageLevel level) {
 	}
 }
 
-}
+}  // jiji::core::logging

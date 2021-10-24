@@ -42,9 +42,9 @@ public:
 	}
 
 // LOG
-	void WriteLine(string_view message) {
+	void WriteLine(Message const& message) {
 		for (auto& log : targets_)
-			log->WriteLine(message);
+			log->WriteLine(message.text);
 	}
 
 private:
@@ -109,13 +109,5 @@ private:
 
 Logger* Logger::instance_ = nullptr;
 Logger& theLogger();
-}
 
-namespace jiji::core {
-	// Provides direct access to the logger's singleton instance.
-	// Safe during most of application lifetime (bar very early initialisation and late finalisation stages).
-	logging::Logger& theLogger() {
-		return logging::theLogger();
-	}
-
-}
+}  // jiji::core::logging

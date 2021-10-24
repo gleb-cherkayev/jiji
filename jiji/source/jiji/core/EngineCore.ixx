@@ -20,9 +20,11 @@ private:
 	// Returns true if successful, and false otherwise.
 	bool _init(Config const& config) {
 		if (config.logging.enable_debugger_log)
-			theLogger().OpenDebuggerLog();
+			logging::theLogger().OpenDebuggerLog();
 
-		theLogger().WriteLine("TEST");
+		log_double_separator();
+		log_comment("TEST");
+		log_single_separator();
 
 		return true;
 	}
