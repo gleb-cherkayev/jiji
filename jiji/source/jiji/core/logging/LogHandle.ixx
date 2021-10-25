@@ -24,16 +24,23 @@ public:
 		return instance;
 	}
 
+// OPTIONS
+	// Enable or disable passing through of messages of that severity. Everything is enabled by default.
+	void Enable(MessageLevel level) {
+		if (auto target = target_.lock())
+			target->filter().Enable(level);
+	}
+	void Disable(MessageLevel level) {
+		if (auto target = target_.lock())
+			target->filter().Disable(level);
+	}
+
 // CLOSE
-	// Closes the log target immediately, if it is still alive.
+	// Closes this log target, if it is still open.
 	void Close();
 
-// OPTIONS
-	// Message filtering. Everything is enabled by default.
-//	void Enable(MessageLevel);
-//	void Disable(MessageLevel);
-
 private:
+	// Associated target, non-owning.
 	weak_ptr<LogTarget> target_;
 };
 

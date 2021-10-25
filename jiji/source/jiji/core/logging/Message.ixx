@@ -92,4 +92,17 @@ string_view get_level_prefix(MessageLevel level) {
 	}
 }
 
+// Returns extra caption, additionally inserted into logs for some message levels.
+string_view get_level_message_prefix(MessageLevel level) {
+	switch (level) {
+	case MessageLevel::Error:
+		return "ERROR: ";
+	case MessageLevel::Warning:
+		return "WARNING: ";
+
+	default:
+		return "";
+	}
+}
+
 }  // jiji::core::logging

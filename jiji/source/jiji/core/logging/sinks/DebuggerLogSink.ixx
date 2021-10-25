@@ -20,9 +20,8 @@ public:
 	string_view name() const override { return "Debugger"; };
 
 //	void Write(Message const&, bool eol, LogTarget::Appearance const&) override;
-	void Write(string_view message/*, MessageLevel*/) override {
-		::OutputDebugStringA(message.data());
-		::OutputDebugStringA("\n");
+	void Write(Message const& message) override {
+		::OutputDebugStringA(message.text.c_str());
 	}
 
 private:

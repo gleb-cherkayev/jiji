@@ -16,25 +16,54 @@ public:
 
 		auto instance = shared_ptr<LogTarget>(new LogTarget);
 		instance->sink_ = std::move(sink);
-		instance->filter_ = Filter::Create();
+		instance->filter_ = Filter::Create();  // Never fails
 		return instance;
 	}
 
+// PROPERTIES
 	// Provides identification for the log.
 	string_view target_name() const {
 		return sink_->name();
 	}
 
+	/*
+		Helper class responsible for configuring which messages are passed to the sink.
+		Everything is enabled by default.
+	*/
+	class Filter {
+	public:
+		static unique_ptr<Filter> Create() {
+			return unique_ptr<Filter>(new Filter);
+		}
+
+	// OPTIONS
+		// Enables logging of the messages of the given severity.
+		void Enable(MessageLevel level) {
+			levels_ |= to_mask_value(level);
+		}
+		// Disables logging of the messages of the given severity.
+		void Disable(MessageLevel level) {
+			levels_ &= ~to_mask_value(level);
+		}
+
+		// Returns true if the message should pass the filter.
+		bool Accepts(Message const& message) const {
+			return to_mask_value(message.level);
+		}
+
+	private:
+		// Accepted message levels (all by default).
+		uint levels_ = ~0u;
+	};
+
+	// Gives access to the target's message filter for configuration.
+	Filter& filter() { return *filter_; }
+
 // WRITE
-	void WriteLine(string_view message) {
-		sink_->Write(message);
+	void WriteLine(Message const& message) {
+		if (filter_->Accepts(message))
+			sink_->Write(message);
 	}
-	// Write full message to log.
-//	void WriteLine(Message const&);
-	// Write a message to log, but don't end the line
-//	void WritePrefix(Message const&);
-	// Finalise the line with status.
-//	void WriteSuffix(string_view, MessageLevel);
 
 private:
 	LogTarget() = default;
@@ -43,30 +72,7 @@ private:
 	// Actual message destination.
 	unique_ptr<LogSink> sink_;
 	// Filter to determine if the message should be passed.
-	class Filter;
 	unique_ptr<Filter> filter_;
-
-
-	class Filter {
-	public:
-		static unique_ptr<Filter> Create() {
-			return unique_ptr<Filter>(new Filter);
-		}
-
-//		void Enable(MessageLevel);
-//		void Disable(MessageLevel);
-
-		// Returns true if the filter passes such message through.
-//		bool Accepts(MessageSource, MessageLevel) const;
-
-	private:
-		// Everything is enabled by default.
-		uint levels_ = ~0u;
-	};
 };
-
-
-
-
 
 }  // jiji::core::logging

@@ -5,8 +5,8 @@ import :core.logging.Logger;
 
 namespace jiji::core::logging {
 
-void send_to_logger(Message const& message) {
-	theLogger().WriteLine(message);
+void _send_to_logger(Message&& message) {
+	theLogger().Consume(std::move(message));
 }
 
 }  // jiji::core::logging

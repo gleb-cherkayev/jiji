@@ -42,9 +42,10 @@ public:
 	}
 
 // LOG
-	void WriteLine(Message const& message) {
+	void Consume(Message&& message) {
+		message.text += '\n';
 		for (auto& log : targets_)
-			log->WriteLine(message.text);
+			log->WriteLine(message);
 	}
 
 private:

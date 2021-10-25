@@ -12,7 +12,7 @@ public:
 	virtual string_view name() const = 0;
 
 	// Message writing implementation.
-	virtual void Write(string_view/*, MessageLevel*/) = 0;
+	virtual void Write(Message const&) = 0;
 };
 
 }

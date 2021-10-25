@@ -35,18 +35,18 @@ struct log_token {};
 
 
 // Helper internal function to hide dependency on Logger.
-void send_to_logger(Message const&);
+void _send_to_logger(Message&&);
 
 
 //	General implementation for all logging functions.
 template<MessageLevel level, typename... Args>
-log_token impl_log(string_view pattern, Args&&... args) {
+log_token _impl_log(string_view pattern, Args&&... args) {
 	Message message{
 		.text = std::format(pattern, std::forward<Args>(args)...),
 		.level = level
 	};
 
-	send_to_logger(message);
+	_send_to_logger(std::move(message));
 	return {};
 }
 
@@ -54,8 +54,8 @@ log_token impl_log(string_view pattern, Args&&... args) {
 // 0         1         2         3         4         5         6         7
 // 01234567890123456789012345678901234567890123456789012345678901234567890123456789
 // 20:22:59 [***] ================================================================ 
-const char* double_line = "================================================================";
-const char* single_line = "----------------------------------------------------------------";
+const char* _double_line = "================================================================";
+const char* _single_line = "----------------------------------------------------------------";
 
 }  // jiji::core::logging
 
@@ -67,7 +67,7 @@ using namespace jiji::core::logging;
 #define JIJI_LOG_FUNCTION(log_xxx, XXX) \
 template<typename... Args> \
 log_token log_xxx(string_view pattern, Args&&... args) { \
-	return impl_log<MessageLevel::XXX>(pattern, std::forward<Args>(args)...); \
+	return _impl_log<MessageLevel::XXX>(pattern, std::forward<Args>(args)...); \
 }
 
 // Logging routines for different message severities.
@@ -92,11 +92,11 @@ log_token trace(string_view pattern, Args&&... args) {
 
 // Separators.
 auto log_double_separator() {
-	return log_bold(double_line);
+	return log_bold(_double_line);
 }
 
 auto log_single_separator() {
-	return log(single_line);
+	return log(_single_line);
 }
 
 
