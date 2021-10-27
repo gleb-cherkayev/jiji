@@ -1,3 +1,5 @@
+module;
+#include <ctime>
 export module jiji:core.logging.Message;
 import :prelude.no_logging;
 
@@ -55,12 +57,43 @@ enum class MessageLevel {
 uint to_mask_value(MessageLevel e) { return 1u << std::underlying_type_t<MessageLevel>(e); }
 
 
-// Keeps a single message to be logged and its associated attributes.
+/*
+	Keeps a single message to be logged and its associated attributes.
+*/
 struct Message {
+	std::tm timestamp;
 	string text;
 	MessageLevel level;
 };
 
+
+// TIME
+
+// Returns current (local) time.
+std::tm get_current_time() {
+	std::time_t now = std::time(nullptr);
+	if ((std::time_t)(-1) == now) return {};
+	std::tm* tm = std::localtime(&now);
+	if (!tm) return {};
+	return *tm;
+}
+
+string format_time(std::tm const& time) {
+	char buffer[32];
+	size_t count = std::strftime(buffer, sizeof(buffer), "%T", &time);  // e.g. `20:14:55`
+	if (!count) return "";
+	return string(buffer, count);
+}
+
+string format_date_time(std::tm const& time) {
+	char buffer[32];
+	size_t count = std::strftime(buffer, sizeof(buffer), "%F %T", &time);  // e.g. `2021-10-27 20:17:11`
+	if (!count) return "";
+	return string(buffer, count);
+}
+
+
+// TEXT
 
 // Returns text prefix representing message severity category.
 string_view get_level_prefix(MessageLevel level) {

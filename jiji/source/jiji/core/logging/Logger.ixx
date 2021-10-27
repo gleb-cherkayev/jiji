@@ -43,12 +43,31 @@ public:
 
 // LOG
 	void Consume(Message&& message) {
-		message.text += '\n';
+		this->_build(message);
 		for (auto& log : targets_)
 			log->WriteLine(message);
 	}
 
 private:
+	void _build(Message& message) {
+		static string temp;
+		temp.clear();
+
+		temp += format_time(message.timestamp);
+		temp += ' ';
+
+		temp += get_level_prefix(message.level);
+		temp += ' ';
+
+//		for (int i = 0; i < message.indent; ++i)
+//			out.append(indent_string_.raw());
+
+		temp += get_level_message_prefix(message.level);
+		temp += message.text;
+		temp += '\n';
+		std::swap(message.text, temp);
+	}
+
 	unique_ptr<LogHandle> _add(shared_ptr<LogTarget> const& log) {
 		if (!log) return nullptr;
 

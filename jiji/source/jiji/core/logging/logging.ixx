@@ -42,6 +42,7 @@ void _send_to_logger(Message&&);
 template<MessageLevel level, typename... Args>
 log_token _impl_log(string_view pattern, Args&&... args) {
 	Message message{
+		.timestamp = get_current_time(),
 		.text = std::format(pattern, std::forward<Args>(args)...),
 		.level = level
 	};
@@ -53,7 +54,7 @@ log_token _impl_log(string_view pattern, Args&&... args) {
 
 // 0         1         2         3         4         5         6         7
 // 01234567890123456789012345678901234567890123456789012345678901234567890123456789
-// 20:22:59 [***] ================================================================ 
+// 20:08:05 [===] ================================================================
 const char* _double_line = "================================================================";
 const char* _single_line = "----------------------------------------------------------------";
 
