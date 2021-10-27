@@ -40,19 +40,35 @@ public:
 		return this->_add(log);
 	}
 
-	// Close the given log. Typically called through LogHandle.
+	// Closes the given log. Typically called through LogHandle.
 	void Close(shared_ptr<LogTarget> const& target) {
 		this->_close(target);
 	}
 
 // MESSAGES
+	// Sends the message to the logs.
 	void Consume(Message&& message) {
 		this->_build(message);
 		for (auto& target : targets_)
 			target->WriteLine(message);
+		if (cache_messages_) {
+			if (cached_messages_.size() < max_cached_messages_)
+				cached_messages_.push_back(std::move(message));
+			else
+				++overflown_messages_;
+		}
+	}
+
+	// Stops caching of messages.
+	// Caching is enabled at the start. This should be called internally after initial log target initialisation.
+	void _stop_message_caching() {
+		cache_messages_ = false;
+		cached_messages_.clear();
+		overflown_messages_ = 0;
 	}
 
 private:
+	// Prepares the message before sending it to logs or storing, by adding extra information and formatting.
 	void _build(Message& message) {
 		static string temp;
 		temp.clear();
@@ -72,6 +88,7 @@ private:
 		std::swap(message.text, temp);
 	}
 
+	// Adds a new target internally, and perform accompanied logging, including dumping cached messages.
 	unique_ptr<LogHandle> _add(shared_ptr<LogTarget> const& target) {
 		if (!target) return nullptr;
 
@@ -82,6 +99,16 @@ private:
 
 		for (auto&& line : cached_messages_)
 			target->WriteLine(line);
+
+		if (overflown_messages_) {
+			Message message{
+				.timestamp = get_current_time(),
+				.text = std::format("<{} message(s) lost>", overflown_messages_),
+				.level = MessageLevel::Log,
+			};
+			this->_build(message);
+			target->WriteLine(message);
+		}
 
 		if (emit_internal_messages_) {
 			// Only goes into this particular target.
@@ -97,6 +124,7 @@ private:
 		return LogHandle::Create(target);
 	}
 
+	// Removes a target internally.
 	void _close(shared_ptr<LogTarget> const& target) {
 		if (!target) return;
 
@@ -127,7 +155,9 @@ private:
 	// Messages kept to be inserted into a newly added target.
 	std::vector<Message> cached_messages_;
 	// Maximum number of messages to keep.
-	uint max_cached_messages_;
+	size_t max_cached_messages_ = 16;
+	// Messages not cached because of the limit, and lost.
+	size_t overflown_messages_ = 0;
 
 //	unique_ptr<Operations> operations_;
 

@@ -15,7 +15,7 @@ private:
 	LogHandle() = default;
 
 public:
-	// Creates a handle for the given log.
+	// Creates a handle for the given log target.
 	static unique_ptr<LogHandle> Create(shared_ptr<LogTarget> const& target) {
 		if (!target) return nullptr;
 
@@ -25,7 +25,7 @@ public:
 	}
 
 // OPTIONS
-	// Enable or disable passing through of messages of that severity. Everything is enabled by default.
+	// Enables or disables passing through of messages of that severity. Everything is enabled by default.
 	void Enable(MessageLevel level) {
 		if (auto target = target_.lock())
 			target->filter().Enable(level);
