@@ -18,6 +18,9 @@ private:
 public:
 	~Logger() {
 		JIJI_COMMENT_HERE;
+		if (emit_internal_messages_)
+			log_bold("All logs closed at {}.", format_current_date_time());
+
 		assert(instance_ == this);
 		instance_ = nullptr;
 	}
@@ -37,15 +40,16 @@ public:
 		return this->_add(log);
 	}
 
-	void Close(shared_ptr<LogTarget> const&) {
-		// TODO
+	// Close the given log. Typically called through LogHandle.
+	void Close(shared_ptr<LogTarget> const& target) {
+		this->_close(target);
 	}
 
-// LOG
+// MESSAGES
 	void Consume(Message&& message) {
 		this->_build(message);
-		for (auto& log : targets_)
-			log->WriteLine(message);
+		for (auto& target : targets_)
+			target->WriteLine(message);
 	}
 
 private:
@@ -59,8 +63,8 @@ private:
 		temp += get_level_prefix(message.level);
 		temp += ' ';
 
-//		for (int i = 0; i < message.indent; ++i)
-//			out.append(indent_string_.raw());
+		for (int i = 0; i < indent_; ++i)
+			temp += ". ";
 
 		temp += get_level_message_prefix(message.level);
 		temp += message.text;
@@ -68,33 +72,50 @@ private:
 		std::swap(message.text, temp);
 	}
 
-	unique_ptr<LogHandle> _add(shared_ptr<LogTarget> const& log) {
-		if (!log) return nullptr;
+	unique_ptr<LogHandle> _add(shared_ptr<LogTarget> const& target) {
+		if (!target) return nullptr;
 
-		//if (emit_internal_messages_)
-		//	lili::log("Logger: Adding log: `%.*s`.", log->target_name().size(), log->target_name().data());
+		if (emit_internal_messages_)
+			log("Adding log: `{}`.", target->target_name());
 
-		targets_.push_back(log);
+		targets_.push_back(target);
 
-		//for (auto&& line : cached_messages_)
-		//	if (log->filter().Accepts(line.source, line.level))
-		//		log->WriteLine(line);
+		for (auto&& line : cached_messages_)
+			target->WriteLine(line);
 
-		//if (emit_internal_messages_) {
-		//	Message message
-		//	{
-		//		.indent = 0,
-		//		.source = MessageSource::System,
-		//		.level = MessageLevel::Bold,
-		//		.timestamp = this->get_current_time(),
-		//		.body = this->create_opening_message()
-		//	};
-		//	log->WriteLine(message);
-		//}
+		if (emit_internal_messages_) {
+			// Only goes into this particular target.
+			Message message{
+				.timestamp = get_current_time(),
+				.text = std::format("Log opened at {}.", format_current_date_time()),
+				.level = MessageLevel::Bold,
+			};
+			this->_build(message);
+			target->WriteLine(message);
+		}
 
-		return LogHandle::Create(log);
+		return LogHandle::Create(target);
 	}
 
+	void _close(shared_ptr<LogTarget> const& target) {
+		if (!target) return;
+
+		auto p = std::find(targets_.begin(), targets_.end(), target);
+		if (p == targets_.end()) return;
+
+		if (emit_internal_messages_) {
+			// Only goes into this particular target.
+			Message message{
+				.timestamp = get_current_time(),
+				.text = std::format("Log closed at {}.", format_current_date_time()),
+				.level = MessageLevel::Bold,
+			};
+			this->_build(message);
+			target->WriteLine(message);
+		}
+
+		targets_.erase(p);
+	}
 
 private:
 	// All active logs targets.
@@ -104,7 +125,7 @@ private:
 	int indent_ = 0;
 
 	// Messages kept to be inserted into a newly added target.
-//	std::vector<Message> cached_messages_;
+	std::vector<Message> cached_messages_;
 	// Maximum number of messages to keep.
 	uint max_cached_messages_;
 
@@ -117,7 +138,6 @@ private:
 	// Controls whether copies of written messages should be stored,
 	// so that a later target would still receive them.
 	bool cache_messages_ = true;
-
 
 	// Singleton instance.
 	static Logger* instance_;

@@ -61,9 +61,14 @@ uint to_mask_value(MessageLevel e) { return 1u << std::underlying_type_t<Message
 	Keeps a single message to be logged and its associated attributes.
 */
 struct Message {
+	// Time when the message was emitted.
 	std::tm timestamp;
+	// Message body text _or_ formatted final text.
 	string text;
+	// Message severity level.
 	MessageLevel level;
+//	// Desired message indentation.
+//	int indent = 0;  // Currently, handled by Logger itself.
 };
 
 
@@ -90,6 +95,10 @@ string format_date_time(std::tm const& time) {
 	size_t count = std::strftime(buffer, sizeof(buffer), "%F %T", &time);  // e.g. `2021-10-27 20:17:11`
 	if (!count) return "";
 	return string(buffer, count);
+}
+
+string format_current_date_time() {
+	return format_date_time(get_current_time());
 }
 
 
