@@ -67,6 +67,12 @@ public:
 		overflown_messages_ = 0;
 	}
 
+	// Changes the current message indentation level.
+	// Normally, should only be used by `indent` class.
+	void indent(int delta) {
+		indent_ += delta;
+	}
+
 private:
 	// Prepares the message before sending it to logs or storing, by adding extra information and formatting.
 	void _build(Message& message) {
@@ -179,5 +185,22 @@ private:
 
 Logger* Logger::instance_ = nullptr;
 Logger& theLogger();
+
+
+/*
+	A helper class to perform scope-based log indentation for additional formatting.
+	In most cases, (Quiet)OperationGuard would be preferred.
+*/
+class indent : noncopyable {
+public:
+	// Constructor. Increases log indentation.
+	indent() {
+		theLogger().indent(+1);
+	}
+	// Destructor. Decreases log indentation.
+	~indent() {
+		theLogger().indent(-1);
+	}
+};
 
 }  // jiji::core::logging

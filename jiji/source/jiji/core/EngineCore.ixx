@@ -22,8 +22,14 @@ private:
 		if (config.logging.enable_debugger_log)
 			logging::theLogger().OpenDebuggerLog();
 
+		JIJI_COMMENT_FUNCTION;
 		log_double_separator();
-		log_comment("TEST");
+		JIJI_TRACE_HERE;
+		log("TEST");
+		{
+			logging::indent guard;
+			log("TEST indented");
+		}
 		log_single_separator();
 
 		return true;

@@ -5,7 +5,7 @@
 	Commonly used logging-related macros.
 	NOTE: Macros don't have ending semicolon. Placing semicolon at calling site helps auto-formatter not to get confused.
 
-	Use `JIJI_LOG_FUNCTION` and `JIJI_TRACE_FUNCTION` to log visiting a function, e.g. `[ * ] jiji::core::Core::~Core()`.
+	Use `JIJI_COMMENT_FUNCTION`, and `JIJI_TRACE_FUNCTION` to log visiting a function, e.g. `[ * ] jiji::core::Core::~Core()`.
 	Use `JIJI_COMMENT_HERE` and `JIJI_TRACE_HERE` to mark the precise location, e.g. `[ @ ] jiji::core::Core::~Core() at jiji\core\Core.ixx:34`.
 	
 	Prefer `JIJI_WARNING` and `JIJI_ERROR` for logging warnings and errors rather than direct `log_warning()` or `log_error()` calls,
@@ -45,7 +45,7 @@ consteval std::source_location trim(std::source_location location, const char* f
 
 // Location logging macros
 // NOTE: __FUNCTION__ gives nicer output in comparison with `std::source_location::function_name()` (e.g., it included namespaces).
-#define JIJI_LOG_FUNCTION log(__FUNCTION__)
+#define JIJI_COMMENT_FUNCTION log_comment(__FUNCTION__)
 #define JIJI_TRACE_FUNCTION trace(__FUNCTION__)
 
 #define JIJI_COMMENT_HERE comment_here(jiji::core::logging::trim(std::source_location::current(), __FUNCTION__))
