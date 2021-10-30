@@ -12,6 +12,7 @@ private:
 		assert(!instance_);
 		instance_ = this;
 		// NOTE: After setting the instance.
+		log_double_separator();  // The first message of log.
 		JIJI_COMMENT_HERE;
 	}
 
@@ -20,6 +21,7 @@ public:
 		JIJI_COMMENT_HERE;
 		if (emit_internal_messages_)
 			log_bold("All logs closed at {}.", format_current_date_time());
+		log_double_separator();  // The last message of log.
 
 		assert(instance_ == this);
 		instance_ = nullptr;

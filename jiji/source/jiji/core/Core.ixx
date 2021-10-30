@@ -51,6 +51,7 @@ public:
 		instance->logger_ = std::move(logger);
 
 		if (!instance->_init(config)) return nullptr;
+		log_double_separator();
 		return instance;
 	}
 

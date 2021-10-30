@@ -22,15 +22,7 @@ private:
 		if (config.logging.enable_debugger_log)
 			logging::theLogger().OpenDebuggerLog();
 
-		JIJI_COMMENT_FUNCTION;
-		log_double_separator();
-		JIJI_TRACE_HERE;
-		log("TEST");
-		{
-			logging::indent guard;
-			log("TEST indented");
-		}
-		log_single_separator();
+		logging::theLogger()._stop_message_caching();
 
 		return true;
 	}
