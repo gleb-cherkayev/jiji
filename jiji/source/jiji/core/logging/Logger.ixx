@@ -2,13 +2,23 @@ export module jiji:core.logging.Logger;
 import :prelude;
 import :core.logging.LogHandle;
 import :core.logging.sinks.DebuggerLogSink;
+import :core.logging.Logger.Operations;
 
 
 namespace jiji::core::logging {
 
+/*
+	Logger.
+	Keeps track of registered log targets, and propagates messages to them.
+	Not exposed to the user code directly.
+*/
 class Logger : noncopyable {
 private:
+	using Operations = LoggerOperations;
+
 	Logger() {
+		operations_ = Operations::Create(*this);
+
 		assert(!instance_);
 		instance_ = this;
 		// NOTE: After setting the instance.
@@ -50,6 +60,13 @@ public:
 // MESSAGES
 	// Sends the message to the logs.
 	void Consume(Message&& message) {
+		// If in operation, wait.
+		if (_operations().InProgress()) {
+			_operations().Postpone(std::move(message));
+			return;
+		}
+
+		// Normal flow.
 		this->_build(message);
 		for (auto& target : targets_)
 			target->WriteLine(message);
@@ -73,6 +90,23 @@ public:
 	// Normally, should only be used by `indent` class.
 	void indent(int delta) {
 		indent_ += delta;
+	}
+
+// OPERATIONS
+	// Initiates operation scope.
+	void begin_operation(OperationGuard const& guard) {
+		_operations().Push(guard);
+	}
+
+	// To be called when the operation receives the header.
+	// The last logged message becomes a header.
+	void caption_operation(OperationGuard const& guard) {
+		_operations().Consummate(guard);
+	}
+	
+	// Finishes and flushes the last operation scope.
+	void end_operation(OperationGuard const& guard) {
+		_operations().Pop(guard);
 	}
 
 private:
@@ -153,6 +187,8 @@ private:
 		targets_.erase(p);
 	}
 
+	Operations& _operations() { return *operations_; }
+
 private:
 	// All active logs targets.
 	std::vector<shared_ptr<LogTarget>> targets_;
@@ -167,7 +203,8 @@ private:
 	// Messages not cached because of the limit, and lost.
 	size_t overflown_messages_ = 0;
 
-//	unique_ptr<Operations> operations_;
+	// Pending operation stack.
+	unique_ptr<Operations> operations_;
 
 // CONTROLS
 	// Controls whether the Logger should record messages for logging subsystems events,

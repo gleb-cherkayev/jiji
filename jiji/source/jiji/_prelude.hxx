@@ -15,6 +15,9 @@ using std::string;
 #include <string_view>
 using std::string_view;
 
+#include <optional>
+using std::optional;
+
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>

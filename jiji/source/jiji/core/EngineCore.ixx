@@ -22,6 +22,12 @@ private:
 		if (config.logging.enable_debugger_log)
 			logging::theLogger().OpenDebuggerLog();
 
+		{
+			OperationGuard op; op << log("Operation testing...");
+			log("...");
+			op.Succeed();
+		}
+
 		logging::theLogger()._stop_message_caching();
 
 		return true;

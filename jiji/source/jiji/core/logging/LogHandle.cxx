@@ -12,4 +12,4 @@ void LogHandle::Close() {
 	target_.reset();
 }
 
-}
+}  // jiji::core::logging
