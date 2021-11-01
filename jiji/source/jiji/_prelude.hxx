@@ -27,4 +27,4 @@ using std::optional;
 using uint = unsigned int;
 
 #include <source_location>
-#include <jiji/core/logging/logging.hxx>
+#include <jiji/core/logging/macros.hxx>

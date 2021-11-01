@@ -1,6 +1,5 @@
-module jiji:core.logging.routines;
+module jiji:core.logging.Logger;
 import :prelude;
-import :core.logging.Logger;
 
 
 namespace jiji::core::logging {
