@@ -1,0 +1,1 @@
+export module jiji:core.logging.impl;

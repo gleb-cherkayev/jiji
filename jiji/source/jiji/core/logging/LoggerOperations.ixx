@@ -21,7 +21,7 @@ public:
 		return !pending_.empty();
 	}
 
-	void Postpone(Message&& message) {
+	void Log(Message&& message) {
 		//auto& op = pending_.back();
 
 		//if (!op.captioned) {
@@ -46,21 +46,21 @@ public:
 	}
 
 	void Push(OperationGuard const&) {
-		//if (!pending_.empty()) {
-		//	// If there's a message pending -> actualise.
-		//	// Don't need to worry about deeper levels. They must have been actualised once we received a message.
-		//	auto& op = pending_.back();
-		//	if (!op.captioned && op.start < (int)messages_.size())
-		//		this->_captionise(op);
-		//}
+		// Generate a caption for the immediate prior scope if necessary.
+		if (!pending_.empty()) {
+			auto& op = pending_.back();
+			if (!op.captioned)
+				this->_captionise(op);
+		}
 
-		//// NOTE: Not necessarily actualising outer scopes, e.g. for case of nested trivial ops.
-		//int start = (int)messages_.size();
-		//if (!pending_.empty())
-		//	start = std::max(start, pending_.back().start + 1);
-		//pending_.push_back({.start = start, .indent = host_.indent_});
-		//host_.indent(+1);
+		// Add new scope.
+		int start = (int)messages_.size();
+		pending_.push_back({.start = start, .indent = this->_get_indent()});
+		this->_indent(+1);
 	}
+
+	int _get_indent() const;
+	void _indent(int);
 
 	void Consummate(OperationGuard const&) {
 		//// Since there was a log message, all outer levels are already actualised.

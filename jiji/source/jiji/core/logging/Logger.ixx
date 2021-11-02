@@ -62,7 +62,7 @@ public:
 	void Consume(Message&& message) {
 		// If in operation, wait.
 		if (_operations().InProgress()) {
-			_operations().Postpone(std::move(message));
+			_operations().Log(std::move(message));
 			return;
 		}
 
